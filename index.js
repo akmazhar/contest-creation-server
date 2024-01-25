@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-// const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+// const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config()
 
 const app = express();
@@ -34,9 +34,10 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
   
     const serviceData = client.db('contestCreation').collection('sixcard');
+    const serviceCollection = client.db('contestCreation').collection('allContest');
 
 
-   app.get('/sixcard', async(req, res) =>{
+    app.get('/sixcard', async(req, res) =>{
       const cursor = serviceData.find();
       const result = await cursor.toArray();
       res.send(result);
@@ -55,8 +56,37 @@ async function run() {
       res.send(result);
     });
 
-    
 
+    
+  
+    // get data for details route
+    app.get("/details/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log("id", id);
+      const query = { _id: new ObjectId(id) };
+      const result = await serviceCollection.findOne(query);
+      console.log("result", result);
+      res.send(result);
+    });
+
+    app.get('/registration', async(req, res) =>{
+      const result = await serviceCollection.find().toArray();
+      res.send(result);
+   })
+  
+
+    app.post('/details', async(req, res) =>{
+      const newDetails = req.body;
+      console.log(newDetails);
+      const result = await serviceCollection.insertOne(newDetails);
+      res.send(result);
+    })
+    app.post('/allContest', async(req, res) =>{
+      const allContest = req.body;
+      console.log(allContest);
+      const result = await serviceCollection.insertOne(allContest);
+      res.send(result);
+    })
 
    // Connect the client to the server	(optional starting in v4.7)
   //  await client.connect();
